@@ -5,8 +5,17 @@ import store from './store';
 import bookmark from './bookmark';
 import api from './api';
 
+
+
+
+
+
 function main(){
-  store.startPage();
+  $('header').html(bookmark.startPage());
+  bookmark.addBookmarkbutton();
+  bookmark.saveBookmarkbutton();
+ 
+    
 }
 
 
