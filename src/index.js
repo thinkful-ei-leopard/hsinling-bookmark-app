@@ -1,9 +1,9 @@
 
 import $ from 'jquery';
 import './index.css';
-import store from './store';
 import bookmark from './bookmark';
 import api from './api';
+import store from './store';
 
 
 
@@ -11,18 +11,17 @@ import api from './api';
 
 
 function main(){
+  api.getItem()
+    .then(res =>res.json())
+    .then((items) => {
+      items.forEach((item)=> store.addItem(item));
+      bookmark.render();
+    });
+
   $('header').html(bookmark.startPage());
-  bookmark.addBookmarkbutton();
-  bookmark.saveBookmarkbutton();
- 
-    
+  bookmark.bindEventListeners();
+  bookmark.render();
 }
 
 
-
-
-
-
-
-
-$(main());
+$(main);

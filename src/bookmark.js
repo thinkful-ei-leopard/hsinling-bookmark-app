@@ -4,20 +4,15 @@ import cuid from 'cuid';
 import api from './api';
 
 
-export default{
-  startPage,
-  addBookmarkbutton,
-  saveBookmarkbutton,
-  render
-};
+
 
 function startPage(){
   return  `<h1>My Bookmark</h1><form class="startpageform">
     <button type='submit' class='startpage'> + Add Bookmark</button>
   </form>
   <form>
-  <select>
-  <option>Filter By Minimum Rating</option>
+  <select name="filterby"class="filterBy">
+  <option value = 0 >Filter By Minimum Rating</option>
   <option value = 5 >&#11088;&#11088;&#11088;&#11088;&#11088; </option>
   <option value = 4 >&#11088;&#11088;&#11088;&#11088; </option>
   <option value = 3 >&#11088;&#11088;&#11088; </option>
@@ -28,7 +23,7 @@ function startPage(){
  
     
 function addBookmarkbutton(){
-  $('.startpageform').on('submit', function(){
+  $('.startpageform').on('submit', function(event){
     event.preventDefault();
     store.storeObj.adding = true; 
     render();
@@ -37,11 +32,11 @@ function addBookmarkbutton(){
 
 function addBookmarkPage(){
   return `<form class="addBookmarkForm" >
-  <label>Create new  bookmark</label></br>
+  <label for ="add new bookmark">Create new  bookmark</label></br>
   <input type="text" name="title" class= "title" placeholder = "Title" required></br>
   Book rate:
-  <select class=selectRate>
-  <option> Rating</option>
+  <select name='select rating'class='selectRate' required>
+  <option value =''> Rating</option>
   <option value = 5 >&#11088;&#11088;&#11088;&#11088;&#11088; </option>
   <option value = 4 >&#11088;&#11088;&#11088;&#11088; </option>
   <option value = 3 >&#11088;&#11088;&#11088; </option>
@@ -54,81 +49,142 @@ function addBookmarkPage(){
   <textarea class="textArea" name ="textArea" rows="4" cols="50">
   </textarea></br>
   <button type="submit" class="save" >Save</button>
-  <form>
-  <button type="button" class="cancel">Cancel</button>
-  </form>
+  <button type="submit" class="cancel">Cancel</button>
   </form>`;
 }
 
+
+
 function saveBookmarkbutton(){
-  $('.addBookmarkForm').on('submit', function(event){
+  $('.addBookmarkForm').on('submit',function(event){
     event.preventDefault();
-    let ntitle = $('input[type="test"]').val();
+    let ntitle = $('.title').val();
     let nurl = $('input[type="url"]').val();
     let ndescription = $('.textArea').val();
     let nrating = $('.selectRate option:checked').val();
     let newItem={id:cuid(), title:ntitle, url:nurl, description: ndescription, rating: nrating, expanded: false};
-    store.addItem(newItem);
-    store.storeObj.adding = false; 
-    render();
-    
-  }
-  ); 
+    api.createItem(newItem)
+      .then(res => res.json())
+      .then(newItem => {
+        store.addItem(newItem);
+        store.storeObj.adding = false;
+        render();
+      }); 
+  }); 
+  
 }
 
-const generateItemList = function (item) {
-  return ` <li class='bm-item-element' data-item-id='${item.id}'>
-          <h4>${item.title}</h4>
-          <div class='shopping-item-controls'>
-             <p>${item.rating}</p>
-            <button type='click' class='expanedB'> + </button>
-          </div>
-        </li>`;
-};
+function cancelbutton(){
+  $('.cancel').on('click',function(event){
+    event.preventDefault();
+    store.storeObj.adding = false;  
+    render();
+    
+  });
+}
+
+
+function generateItemList(item) {
+
   
+  let description = '';
+  let buttonName ='Show detail';
+  let url ='';
+  let deleteButton = '';
+
+  if(item.expanded === true){
+    description = `<div><label>Description:</label> ${item.description}</div>`;
+    buttonName ='Show less';
+    url = `<a href="${item.url}"><button>Visit Site</button></a>`;
+    deleteButton = '<button class="deleteItem">Delete</button>';
+  }
+  return `<li class='bm-expand-element' data-item-id='${item.id}'>
+    <h3>${item.title}</h3>
+    <p>${item.rating} Stars</p>
+    <p>${description}</p>
+    <p> ${url}${deleteButton}</p>
+    <button type='button' class='moreLessButton'> ${buttonName} </button>
+  </li>`;
+    
+}
+
 function generateBookmarkItemString(list){
   const items = list.map((item) => generateItemList(item));
   return items.join('');
+}  
+
+function getItemIdFromElement(item){
+  return $(item).closest('li').data('item-id');
 }
 
-  
-  
-
-
-function expandItem(item){
-  return `<li class='bm-item-element' data-item-id='${item.id}'>
-    <h4>${item.title}</h4>
-    <p>${item.rating} Stars</p>
-    <p>${item.description}</p>
-    <p> ${item.url}</p>
-    <form class='cancelform' ><button type="submit" class="cancel" name="cancel">close</button></form>
-    <form class='deleteform'><button type="submit" class="delete" name="delete">delete</button></form>
-    <form class='visitform'><button type="submit" class="visitsite" name="visitsite">Visit Site</button></form>    
-  </li>`;
-}
-
-
-
-function cancelbutton(){
-  $('.addBookmarkForm').on('click', function(event){
+function expandbutton(){
+  $('.bookmarkList').on('click','.moreLessButton',function(event){
     event.preventDefault();
-    console.log('hi');
+    const id = getItemIdFromElement(event.currentTarget);//id
+    const item = store.findById(id);//item object
+    if(id === item.id){
+      item.expanded = !item.expanded;
+    }
     render();
   });
+        
+}
+
+function deletebutton(){
+  $('.bookmarkList').on('click','.deleteItem',function(event){
+    event.preventDefault();
+    const deleteId = getItemIdFromElement(event.currentTarget);//id
+    api.deleteItem(deleteId)
+      .then(res => res.json())
+      .then(() => {
+        store.removeItem(deleteId);
+        render();
+      }); 
+  });
+}
+
+function selectRate(){
+  $('.filterBy').click(function(){
+    event.preventDefault();
+    store.storeObj.filter = $('.filterBy option:checked').val();
+    //$('.filterBy option:checked').val('');   
+    render();
+  });
+
 }
 
 function render(){
   let items = [...store.storeObj.bookmarks];
-  
-  if(store.storeObj.adding === true){
-    $('main').html(addBookmarkPage()) ;
-  }
- 
-  $('ul').html(generateBookmarkItemString(items));
-  
-  
-  
-  
 
+  if(store.storeObj.adding){
+    $('main').html(addBookmarkPage()) ;
+    cancelbutton();
+    saveBookmarkbutton();
+  }else{
+    $('.addBookmarkForm').remove();
+  }
+
+  if(store.storeObj.filter > 0){
+    selectRate();
+    items = store.storeObj.bookmarks.filter(bookItem => bookItem.rating >= store.storeObj.filter);
+  }
+
+  $('ul').html(generateBookmarkItemString(items));
+    
 }
 
+function bindEventListeners(){
+  addBookmarkbutton();  
+  cancelbutton();
+  saveBookmarkbutton();
+  expandbutton();
+  deletebutton();
+  selectRate();
+  
+}
+export default{
+  startPage,
+  bindEventListeners,
+  render
+  
+};  
