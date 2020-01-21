@@ -5,7 +5,7 @@ const storeObj = {
   bookmarks: [],
   adding: false,
   error: null,
-  filter: 0
+  filter: 0,
 };
 
 const findById = function (id) {
@@ -20,6 +20,11 @@ const  addItem = function (item) {
   }
 };
 
+const editItem = function(editid, newData){
+  let  bookmark = this.findById(editid);
+  Object.assign(bookmark, newData);
+};
+
 const removeItem = function(itemId){
   const indexItem = storeObj.bookmarks.findIndex(item =>item.id === itemId );
   storeObj.bookmarks.splice(indexItem,1);
@@ -29,6 +34,7 @@ export default{
   storeObj,
   findById,
   addItem,
+  editItem,
   removeItem 
 };
 

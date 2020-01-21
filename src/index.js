@@ -1,9 +1,8 @@
 
-import $ from 'jquery';
-import './index.css';
-import bookmark from './bookmark';
-import api from './api';
-import store from './store';
+
+import bookmark from './bookmark.js';
+import api from './api.js';
+import store from './store.js';
 
 
 
@@ -11,8 +10,7 @@ import store from './store';
 
 
 function main(){
-  api.getItem()
-    .then(res =>res.json())
+  api.getItems()
     .then((items) => {
       items.forEach((item)=> store.addItem(item));
       bookmark.render();
