@@ -1,10 +1,10 @@
 Bookmarks App -Hsin Ling Hu
 
-GH-Pages Link: 
+GH-Pages Link: https://thinkful-ei-leopard.github.io/hsinling-bookmark-app/.
 
 
 User Stories
-As a user:  https://thinkful-ei-leopard.github.io/hsinling-bookmark-app/.
+As a user:  
 
 I can add bookmarks to my bookmark list. Bookmarks contain:
 
