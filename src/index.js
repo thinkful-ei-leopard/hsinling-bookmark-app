@@ -16,7 +16,6 @@ function main(){
       bookmark.render();
     });
 
-  $('header').html(bookmark.startPage());
   bookmark.bindEventListeners();
   bookmark.render();
 }

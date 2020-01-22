@@ -4,22 +4,7 @@ import api from './api.js';
 
 
 
-function startPage(){
-  return  `<h1>My Bookmark</h1><form class="startpageform">
-    <button type='submit' class='startpage'> + Add Bookmark</button>
-  </form>
-  <form>
-  <label for='filterby'></label>
-  <select name="filterby" class="filterBy">
-  <option value = 0 >Filter By Minimum Rating</option>
-  <option value = 5 >&#11088;&#11088;&#11088;&#11088;&#11088; </option>
-  <option value = 4 >&#11088;&#11088;&#11088;&#11088; </option>
-  <option value = 3 >&#11088;&#11088;&#11088; </option>
-  <option value = 2 >&#11088;&#11088; </option>
-  <option value = 1 >&#11088; </option>
-  </select></form>`; 
-}
- 
+
     
 function addBookmarkbutton(){
   $('.startpageform').on('submit', function(event){
@@ -166,7 +151,6 @@ function deletebutton(){
     event.preventDefault();
     const deleteId = getItemIdFromElement(event.currentTarget);//id
     api.deleteItem(deleteId)
-      .then(res => res.json())
       .then(() => {
         store.removeItem(deleteId);
         render();
@@ -194,7 +178,6 @@ function saveEditbutton(){
     let nrating = $('.editselectRate option:checked').val();
     let revisedItem = { rating:nrating, desc:ndescription};
     const id = getItemIdFromElement(event.currentTarget);
-   // $('editformPage').attr('hidden', true);
     api.editItem(id, revisedItem)
       .then(revised  => {
         console.log(revised);
@@ -225,7 +208,7 @@ function selectRate(){
 }
 
 function render(){
-  console.log(store.storeObj);
+  
   let items = [...store.storeObj.bookmarks];
 
   if(store.storeObj.adding){
@@ -239,7 +222,6 @@ function render(){
   if(store.storeObj.filter > 0){
     items = store.storeObj.bookmarks.filter(bookItem => bookItem.rating >= store.storeObj.filter);
   }
-  
   
 
   $('ul').html(generateBookmarkItemString(items));
@@ -258,7 +240,7 @@ function bindEventListeners(){
   saveEditbutton();
 }
 export default{
-  startPage,
+  
   bindEventListeners,
   render
   
